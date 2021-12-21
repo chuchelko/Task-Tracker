@@ -50,36 +50,65 @@ namespace Task_Tracker_Proj.Controllers
             //project = new_project;
             //_repository.UpdateRange(project.Tasks);
             //_repository.Update(new_project);
-            
+            //_repository.Database.EnsureDeleted();
+            //_repository.Database.EnsureCreated();
+
             using (RepositoryContext context = new RepositoryContext())
             {
-                var project = context.Projects.Include(p => p.Tasks).FirstOrDefault(p => p.ProjectId == new_project.ProjectId);
-                
-                if(project == null)
+                var project = context.Projects.AsNoTracking().Include(p => p.Tasks).FirstOrDefault(p => p.ProjectId == new_project.ProjectId);
+                if (project == null)
                 {
-                    context.Add(new_project);
+                    new_project.ProjectId = default;
+                    foreach (var task in new_project.Tasks)
+                    {
+                        task.ProjectTaskId = default;
+                    }
+                    context.Projects.Add(new_project);
                 }
                 else
                 {
+                    foreach (var task in new_project.Tasks)
+                    {
+                        var old_task = context.Tasks.Include(t => t.Project).FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
+
+                        if (old_task == null)
+                        {
+                            task.ProjectTaskId = default;
+                            context.Tasks.Add(task);
+                        }
+                        else
+                        {
+                            task.Project = project;
+                            context.Entry(old_task).CurrentValues.SetValues(task);
+                        }
+                            
+
+                    }
                     context.Entry(project).CurrentValues.SetValues(new_project);
 
-                    //List<ProjectTask> tasksToDelete = new List<ProjectTask>();
-                    //foreach (var task in project.Tasks)
-                    //{
-                    //    if (!new_project.Tasks.Exists(t => t.ProjectTaskId == task.ProjectTaskId))
-                    //        tasksToDelete.Add(task);
-                    //}
-                    //context.RemoveRange(tasksToDelete);
-
-                    foreach (var new_task in new_project.Tasks)
-                    {
-                        var old_task = context.Tasks.FirstOrDefault(t => t.ProjectTaskId == new_task.ProjectTaskId);
-                        if (old_task == null)
-                            context.Tasks.Add(new_task);
-                        else
-                            context.Entry(old_task).CurrentValues.SetValues(new_task);
-                    }
                 }
+
+                Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+
+                foreach (var task in project.Tasks)
+                {
+                    task.Project = project;
+                }
+                ////Add tasks related to this project
+                //foreach (var task in new_project.Tasks)
+                //{
+                //    var old_task = context.Tasks.FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
+                //    if (old_task == null)
+                //    {
+                //        //Put request adds task with new unique ID when there is no task in DB
+                //        //having adding task's id
+                //        task.ProjectTaskId = default;
+                //        context.Tasks.Add(task);
+                //    }
+                //    else
+                //        context.Entry(old_task).CurrentValues.SetValues(task);
+                //}
+                
                 await context.SaveChangesAsync();
                 return CreatedAtAction(nameof(Get), new { id = new_project.ProjectId }, new_project);
             }

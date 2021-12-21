@@ -10,7 +10,7 @@ namespace Task_Tracker_Proj.Repositories
         public DbSet<Project> Projects { get; set; }
         public RepositoryContext()
         {
-            Database.EnsureDeleted();
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
