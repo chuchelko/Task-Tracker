@@ -46,71 +46,35 @@ namespace Task_Tracker_Proj.Controllers
         [HttpPut("projects")]
         public async Task<ActionResult<Project>> Put(Project new_project)
         {
-            //_repository.Entry(new_project).State = EntityState.Detached;
-            //project = new_project;
-            //_repository.UpdateRange(project.Tasks);
-            //_repository.Update(new_project);
-            //_repository.Database.EnsureDeleted();
-            //_repository.Database.EnsureCreated();
-
-            using (RepositoryContext context = new RepositoryContext())
+            using(RepositoryContext context = new RepositoryContext())
             {
-                var project = context.Projects.AsNoTracking().Include(p => p.Tasks).FirstOrDefault(p => p.ProjectId == new_project.ProjectId);
-                if (project == null)
+                var old_project = context.Projects.Include(p => p.Tasks)
+                    .FirstOrDefault(p => p.ProjectId == new_project.ProjectId);
+                if (old_project == null)
                 {
-                    new_project.ProjectId = default;
                     foreach (var task in new_project.Tasks)
-                    {
                         task.ProjectTaskId = default;
-                    }
-                    context.Projects.Add(new_project);
+                    new_project.ProjectId = default;
+                    context.Add(new_project);
+                    await context.SaveChangesAsync();
+                    return CreatedAtAction(nameof(Get), new { id = new_project.ProjectId }, new_project);
                 }
-                else
+                foreach (var task in new_project.Tasks)
                 {
-                    foreach (var task in new_project.Tasks)
-                    {
-                        var old_task = context.Tasks.Include(t => t.Project).FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
-
-                        if (old_task == null)
-                        {
-                            task.ProjectTaskId = default;
-                            context.Tasks.Add(task);
-                        }
-                        else
-                        {
-                            task.Project = project;
-                            context.Entry(old_task).CurrentValues.SetValues(task);
-                        }
-                            
-
-                    }
-                    context.Entry(project).CurrentValues.SetValues(new_project);
-
+                    var old_task = old_project.Tasks.FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
+                    if (old_task == null)
+                        return BadRequest();
+                    old_task.SetValues(task); //здесь можно передавать контекст и менять EntityState
+                    context.Entry(old_task).State = EntityState.Modified;
                 }
-
-                Console.WriteLine(context.ChangeTracker.DebugView.LongView);
-
-                foreach (var task in project.Tasks)
-                {
-                    task.Project = project;
-                }
-                ////Add tasks related to this project
-                //foreach (var task in new_project.Tasks)
-                //{
-                //    var old_task = context.Tasks.FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
-                //    if (old_task == null)
-                //    {
-                //        //Put request adds task with new unique ID when there is no task in DB
-                //        //having adding task's id
-                //        task.ProjectTaskId = default;
-                //        context.Tasks.Add(task);
-                //    }
-                //    else
-                //        context.Entry(old_task).CurrentValues.SetValues(task);
-                //}
+                foreach (var task_to_delete in old_project.Tasks)
+                    if (context.Entry(task_to_delete).State == EntityState.Unchanged)
+                        context.Remove(task_to_delete);
                 
+                context.Entry(old_project).CurrentValues.SetValues(new_project);
+                Console.WriteLine(context.ChangeTracker.DebugView.LongView);
                 await context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Get), new { id = new_project.ProjectId }, new_project);
+                return CreatedAtAction(nameof(Get), new { id = old_project.ProjectId }, old_project);
             }
 
 

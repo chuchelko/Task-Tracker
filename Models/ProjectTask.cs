@@ -25,6 +25,13 @@ namespace Task_Tracker_Proj.Models
         public string Description { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public TaskStatus? Status { get; set; } = TaskStatus.ToDo;
+
+        public void SetValues(ProjectTask task)
+        {
+            Name = task.Name;
+            Description = task.Description;
+            Status = task.Status;
+        }
         
 
     }
