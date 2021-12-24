@@ -30,12 +30,7 @@ namespace Task_Tracker_Proj
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<RepositoryContext>();
-            services.AddControllers().AddJsonOptions(configure =>
-            {
-                configure.JsonSerializerOptions.ReferenceHandler
-                = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-                configure.JsonSerializerOptions.WriteIndented = true;
-            });
+            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Task Storage API"

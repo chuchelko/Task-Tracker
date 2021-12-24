@@ -48,14 +48,14 @@ namespace Task_Tracker_Proj.Controllers
         [ProducesResponseType(typeof(Project), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [HttpPost]
-        public async Task<ActionResult<Project>> Post(Project project)
+        public async Task<ActionResult<ProjectDTO>> Post(Project project)
         {
             if (project == null)
                 return BadRequest(ModelState);
             _repository.Tasks.AddRange(project.Tasks);
             _repository.Projects.Add(project);
             await _repository.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = project.ProjectId }, project);
+            return CreatedAtAction(nameof(Get), new { id = project.ProjectId }, new ProjectDTO(project));
         }
 
         /// <summary>
@@ -107,8 +107,7 @@ namespace Task_Tracker_Proj.Controllers
             Project project = await _repository.Projects.Include("Tasks").FirstOrDefaultAsync(x => x.ProjectId == id);
             if (project == null)
                 return NotFound();
-            ProjectDTO projectDTO = new ProjectDTO(project);
-            return new JsonResult(projectDTO);
+            return new JsonResult(new ProjectDTO(project));
         }
 
 
