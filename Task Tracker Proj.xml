@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Task Tracker Proj</name>
+    </assembly>
+    <members>
+        <member name="M:Task_Tracker_Proj.Controllers.ProjectsController.Get">
+            <summary>
+            Returns all stored projects with it's tasks.
+            </summary>
+        </member>
+        <member name="M:Task_Tracker_Proj.Controllers.ProjectsController.Post(Task_Tracker_Proj.Models.Project)">
+            <summary>
+            Adds new project with related tasks.
+            </summary>
+        </member>
+        <member name="M:Task_Tracker_Proj.Controllers.ProjectsController.Put(Task_Tracker_Proj.Models.Project)">
+            <summary>
+            Changes all Project's value to recieved or default values.
+            </summary>
+            <remarks>
+            Returns 404 status code response when there is no Project with recieved ID in Database.<br/>
+            When there is no Task related to the recieved Project, returns 404 status code response.
+            </remarks>
+        </member>
+        <member name="M:Task_Tracker_Proj.Controllers.ProjectsController.Get(System.Int32)">
+            <summary>
+            Returns Project with recieved ID.
+            </summary>
+            <param name="id">ID of the Project.</param>
+        </member>
+        <member name="M:Task_Tracker_Proj.Controllers.ProjectsController.Delete(System.Int32)">
+            <summary>
+            Deletes Project with related Tasks by recieved ID.
+            </summary>
+        </member>
+    </members>
+</doc>

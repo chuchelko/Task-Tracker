@@ -5,6 +5,10 @@
     <RootNamespace>Task_Tracker_Proj</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>Task Tracker Proj.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Repositories\**" />
     <Content Remove="Repositories\**" />

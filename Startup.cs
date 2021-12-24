@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Task_Tracker_Proj.Repositories;
 
@@ -36,8 +38,13 @@ namespace Task_Tracker_Proj
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Task_Tracker_Proj", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Task Storage API"
+                    , Description = "API that allows you to show projects and task for them" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +54,10 @@ namespace Task_Tracker_Proj
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task_Tracker_Proj v1"));
+                app.UseSwaggerUI(c => {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Storage API");
+                    c.DefaultModelExpandDepth(-1);
+                        });
             }
 
             app.UseHttpsRedirection();
