@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Task_Tracker_Proj.Models
+namespace TaskTracker.Models
 {
     public enum TaskStatus
     {

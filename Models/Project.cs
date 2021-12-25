@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Task_Tracker_Proj.Models
+namespace TaskTracker.Models
 {
     public enum ProjectStatus
     {

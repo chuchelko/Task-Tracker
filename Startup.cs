@@ -7,10 +7,10 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
 using System.Reflection;
-using Task_Tracker_Proj.Services;
-using Task_Tracker_Proj.Services.Interfaces;
+using TaskTracker.Services;
+using TaskTracker.Services.Interfaces;
 
-namespace Task_Tracker_Proj
+namespace TaskTracker
 {
     public class Startup
     {

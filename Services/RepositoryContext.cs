@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Task_Tracker_Proj.Models;
+using TaskTracker.Models;
 
-namespace Task_Tracker_Proj.Services
+namespace TaskTracker.Services
 {
     public class RepositoryContext : DbContext
     {

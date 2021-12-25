@@ -1,4 +1,4 @@
-﻿namespace Task_Tracker_Proj.Models.DTOs
+﻿namespace TaskTracker.Models.DTOs
 {
     public class ProjectTaskDTO
     {

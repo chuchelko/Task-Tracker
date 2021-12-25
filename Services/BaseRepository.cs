@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Task_Tracker_Proj.Services
+namespace TaskTracker.Services
 {
     public abstract class BaseRepository<TEntity> where TEntity : class
     {

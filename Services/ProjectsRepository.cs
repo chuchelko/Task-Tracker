@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Task_Tracker_Proj.Models;
-using Task_Tracker_Proj.Services.Interfaces;
+using TaskTracker.Models;
+using TaskTracker.Services.Interfaces;
 
-namespace Task_Tracker_Proj.Services
+namespace TaskTracker.Services
 {
     public sealed class ProjectsRepository : BaseRepository<Project>, IProjectsRepository
     {

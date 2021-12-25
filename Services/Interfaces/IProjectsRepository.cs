@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Task_Tracker_Proj.Models;
+using TaskTracker.Models;
 
-namespace Task_Tracker_Proj.Services.Interfaces
+namespace TaskTracker.Services.Interfaces
 {
     public interface IProjectsRepository
     {

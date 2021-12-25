@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Task_Tracker_Proj.Models;
-using Task_Tracker_Proj.Models.DTOs;
-using Task_Tracker_Proj.Services.Interfaces;
+using TaskTracker.Models;
+using TaskTracker.Models.DTOs;
+using TaskTracker.Services.Interfaces;
 
-namespace Task_Tracker_Proj.Controllers
+namespace TaskTracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

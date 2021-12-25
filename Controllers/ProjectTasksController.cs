@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Task_Tracker_Proj.Models;
-using Task_Tracker_Proj.Models.DTOs;
-using Task_Tracker_Proj.Services.Interfaces;
+using TaskTracker.Models;
+using TaskTracker.Models.DTOs;
+using TaskTracker.Services.Interfaces;
 
-namespace Task_Tracker_Proj.Controllers
+namespace TaskTracker.Controllers
 {
     [Route("api/projects/{project_id}/tasks")]
     [ApiController]
