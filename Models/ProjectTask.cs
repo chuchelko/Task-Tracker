@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Task_Tracker_Proj.Models
 {
@@ -32,7 +28,7 @@ namespace Task_Tracker_Proj.Models
             Description = task.Description;
             Status = task.Status;
         }
-        
+
 
     }
 }

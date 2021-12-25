@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 using Task_Tracker_Proj.Models;
 
-namespace Task_Tracker_Proj.Repositories
+namespace Task_Tracker_Proj.Services
 {
     public class RepositoryContext : DbContext
     {
-        public DbSet<ProjectTask> Tasks { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public RepositoryContext()
+        public DbSet<ProjectTask> Tasks { get; set; }
+        public RepositoryContext(DbContextOptions options) : base(options)
         {
             Database.EnsureCreated();
         }

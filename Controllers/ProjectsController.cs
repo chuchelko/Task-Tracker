@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mime;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Task_Tracker_Proj.Models;
 using Task_Tracker_Proj.Models.DTOs;
-using Task_Tracker_Proj.Repositories;
+using Task_Tracker_Proj.Services.Interfaces;
 
 namespace Task_Tracker_Proj.Controllers
 {
@@ -20,10 +16,10 @@ namespace Task_Tracker_Proj.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     public class ProjectsController : ControllerBase
     {
-        RepositoryContext _repository = new RepositoryContext();
-        public ProjectsController(RepositoryContext repository)
+        IRepositoryWrapper repository;
+        public ProjectsController(IRepositoryWrapper repository)
         {
-            _repository = repository;
+            this.repository = repository;
         }
 
         /// <summary>
@@ -34,10 +30,10 @@ namespace Task_Tracker_Proj.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Project>>> Get()
         {
-            var projects = await _repository.Projects.Include(p => p.Tasks).ToListAsync();
+            var projects = await repository.Projects.GetAllWithTasksAsync();
             if (projects == null)
                 return new NotFoundResult();
-            List<ProjectDTO> projectDTOs = new List<ProjectDTO>();
+            var projectDTOs = new List<ProjectDTO>();
             projects.ForEach(p => projectDTOs.Add(new ProjectDTO(p)));
             return new JsonResult(projectDTOs);
         }
@@ -52,9 +48,9 @@ namespace Task_Tracker_Proj.Controllers
         {
             if (project == null)
                 return BadRequest(ModelState);
-            _repository.Tasks.AddRange(project.Tasks);
-            _repository.Projects.Add(project);
-            await _repository.SaveChangesAsync();
+            repository.Tasks.CreateRange(project.Tasks);
+            repository.Projects.Create(project);
+            await repository.SaveAsync();
             return CreatedAtAction(nameof(Get), new { id = project.ProjectId }, new ProjectDTO(project));
         }
 
@@ -70,29 +66,17 @@ namespace Task_Tracker_Proj.Controllers
         [HttpPut]
         public async Task<ActionResult<Project>> Put(Project new_project)
         {
-            using (RepositoryContext context = new RepositoryContext())
+            try
             {
-                var old_project = context.Projects.Include(p => p.Tasks)
-                    .FirstOrDefault(p => p.ProjectId == new_project.ProjectId);
-                if (old_project == null)
-                    return NotFound();
-                foreach (var task in new_project.Tasks)
-                {
-                    var old_task = old_project.Tasks.FirstOrDefault(t => t.ProjectTaskId == task.ProjectTaskId);
-                    if (old_task == null)
-                        return NotFound();
-                    old_task.SetValues(task); //здесь можно передавать контекст и менять EntityState
-                    context.Entry(old_task).State = EntityState.Modified;
-                }
-                foreach (var task_to_delete in old_project.Tasks)
-                    if (context.Entry(task_to_delete).State == EntityState.Unchanged)
-                        context.Remove(task_to_delete);
-
-                context.Entry(old_project).CurrentValues.SetValues(new_project);
-                Console.WriteLine(context.ChangeTracker.DebugView.LongView);
-                await context.SaveChangesAsync();
+                await repository.UpdateProject(new_project);
+                await repository.SaveAsync();
                 return NoContent();
             }
+            catch (NullReferenceException exp)
+            {
+                return NotFound(exp.Message);
+            }
+            
         }
 
         /// <summary>
@@ -104,14 +88,12 @@ namespace Task_Tracker_Proj.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Project>> Get(int id)
         {
-            Project project = await _repository.Projects.Include("Tasks").FirstOrDefaultAsync(x => x.ProjectId == id);
+            Project project = await repository.Projects.GetByIdWithTasksAsync(id);
             if (project == null)
                 return NotFound();
             return new JsonResult(new ProjectDTO(project));
         }
 
-
-        //works
         /// <summary>
         /// Deletes Project with related Tasks by recieved ID.
         /// </summary>
@@ -120,22 +102,13 @@ namespace Task_Tracker_Proj.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Project>> Delete(int id)
         {
-            Project project = _repository.Projects.Include("Tasks").FirstOrDefault(x => x.ProjectId == id);
+            Project project = await repository.Projects.GetByIdAsync(id);
             if (project == null)
                 return BadRequest();
-            _repository.Projects.Remove(project);
-            await _repository.SaveChangesAsync();
+            repository.Projects.Delete(project);
+            await repository.SaveAsync();
             return NoContent();
         }
-        //works
-        //[HttpDelete("projects/")]
-        //public async Task<ActionResult<Project>> DeleteAll(int id)
-        //{
-        //    var project = _repository.Projects.Include("Tasks");
-        //    _repository.Projects.RemoveRange(project);
-        //    await _repository.SaveChangesAsync();
-        //    return Ok(project);
-        //}
 
     }
 }

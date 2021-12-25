@@ -1,19 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Task_Tracker_Proj.Repositories;
+using Task_Tracker_Proj.Services;
+using Task_Tracker_Proj.Services.Interfaces;
 
 namespace Task_Tracker_Proj
 {
@@ -29,7 +24,7 @@ namespace Task_Tracker_Proj
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<RepositoryContext>();
+            services.AddDbContext<RepositoryContext>().AddScoped<IRepositoryWrapper, RepositoryWrapper>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
