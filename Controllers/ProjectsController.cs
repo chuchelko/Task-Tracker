@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,51 +24,70 @@ namespace TaskTracker.Controllers
         }
 
         /// <summary>
-        /// Returns all stored projects with it's tasks.
+        /// Returns all stored Projects with it's tasks.
         /// </summary>
-        [ProducesResponseType(typeof(Project), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<ProjectDTOWithID>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public async Task<ActionResult<List<Project>>> Get()
+        public async Task<ActionResult<List<ProjectDTOWithID>>> Get()
         {
             var projects = await repository.Projects.GetAllWithTasksAsync();
             if (projects == null)
                 return new NotFoundResult();
-            var projectDTOs = new List<ProjectDTO>();
-            projects.ForEach(p => projectDTOs.Add(new ProjectDTO(p)));
+            var projectDTOs = new List<ProjectDTOWithID>();
+            projects.ForEach(p => projectDTOs.Add(new ProjectDTOWithID(p)));
             return new JsonResult(projectDTOs);
         }
 
         /// <summary>
-        /// Adds new project with related tasks.
+        /// Returns Project with recieved ID.
         /// </summary>
-        [ProducesResponseType(typeof(Project), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [HttpPost]
-        public async Task<ActionResult<ProjectDTO>> Post(Project project)
+        /// <param name="id">ID of Project.</param>
+        [ProducesResponseType(typeof(ProjectDTOWithID), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProjectDTOWithID>> Get(int id)
         {
+            Project project = await repository.Projects.GetByIdWithTasksAsync(id);
             if (project == null)
-                return BadRequest(ModelState);
-            repository.Tasks.CreateRange(project.Tasks);
-            repository.Projects.Create(project);
-            await repository.SaveAsync();
-            return CreatedAtAction(nameof(Get), new { id = project.ProjectId }, new ProjectDTO(project));
+                return NotFound();
+            return new JsonResult(new ProjectDTOWithID(project));
         }
 
         /// <summary>
-        /// Changes all Project's value to recieved or default values.
+        /// Adds new Project with related Tasks.
+        /// </summary>
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProjectDTOWithoutID), StatusCodes.Status201Created)]
+        [HttpPost]
+        public async Task<ActionResult<ProjectDTOWithoutID>> Post(ProjectDTOWithoutID projectDTO)
+        {
+            if (projectDTO == null)
+                return BadRequest(ModelState);
+            var project = new Project();
+            project.FromDTO(projectDTO);
+            repository.Tasks.CreateRange(project.Tasks);
+            repository.Projects.Create(project);
+            await repository.SaveAsync();
+            return CreatedAtAction(nameof(Get), new { id = project.ProjectId }, new ProjectDTOWithID(project));
+        }
+
+        /// <summary>
+        /// Changes all Project's values to recieved or default values.
         /// </summary>
         /// <remarks>
-        /// Returns 404 status code response when there is no Project with recieved ID in Database.<br/>
+        /// Returns 404 status code response when there is no Project with recieved ID in the Store.<br/>
         /// When there is no Task related to the recieved Project, returns 404 status code response.
         /// </remarks>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut]
-        public async Task<ActionResult<Project>> Put(Project new_project)
+        public async Task<ActionResult> Put(ProjectDTOWithID project)
         {
             try
             {
+                var new_project = new Project();
+                new_project.FromDTO(project);
                 await repository.UpdateProject(new_project);
                 await repository.SaveAsync();
                 return NoContent();
@@ -76,22 +96,27 @@ namespace TaskTracker.Controllers
             {
                 return NotFound(exp.Message);
             }
-            
+
         }
 
         /// <summary>
-        /// Returns Project with recieved ID.
+        /// Updates Project's properties by Json Patch Document.
         /// </summary>
-        /// <param name="id">ID of the Project.</param>
-        [ProducesResponseType(typeof(Project), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> Get(int id)
+        /// <param name="id">Id of Project.</param>
+        /// <param name="patchDocument">Json Patch Document</param>
+        [ProducesResponseType(typeof(ProjectDTOWithID), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<ProjectDTOWithID>> JsonPatchProject([FromRoute] int id, [FromBody] JsonPatchDocument<Project> patchDocument)
         {
-            Project project = await repository.Projects.GetByIdWithTasksAsync(id);
-            if (project == null)
-                return NotFound();
-            return new JsonResult(new ProjectDTO(project));
+            if (patchDocument == null)
+                return BadRequest();
+            var project = await repository.Projects.GetByIdWithTasksAsync(id);
+            patchDocument.ApplyTo(project);
+            if (ModelState.IsValid == false)
+                return BadRequest();
+            await repository.SaveAsync();
+            return Ok(new ProjectDTOWithID(project));
         }
 
         /// <summary>
@@ -100,7 +125,7 @@ namespace TaskTracker.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Project>> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             Project project = await repository.Projects.GetByIdAsync(id);
             if (project == null)

@@ -9,6 +9,7 @@ namespace TaskTracker.Services.Interfaces
     public interface IProjectsRepository
     {
         Task<List<Project>> GetAllWithTasksAsync();
+        Task<Project> GeByIdWithTasksAsNoTrackingAsync(int id);
         Task<Project> GetByIdAsync(int id);
         Task<Project> GetByIdWithTasksAsync(int id);
         void Create(Project project);

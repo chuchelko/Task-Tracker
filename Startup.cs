@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +10,9 @@ using System.IO;
 using System.Reflection;
 using TaskTracker.Services;
 using TaskTracker.Services.Interfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace TaskTracker
 {
@@ -25,7 +29,11 @@ namespace TaskTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<RepositoryContext>().AddScoped<IRepositoryWrapper, RepositoryWrapper>();
-            services.AddControllers();
+            //NewtonsoftJson:
+            services.AddControllers(options =>
+            {
+                options.InputFormatters.Insert(0, GetJsonPatchFormatter());
+            }).AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Task Storage API"
@@ -36,7 +44,21 @@ namespace TaskTracker
             });
             
         }
+        private static NewtonsoftJsonPatchInputFormatter GetJsonPatchFormatter()
+        {
+            var builder = new ServiceCollection()
+                .AddLogging()
+                .AddMvc()
+                .AddNewtonsoftJson()
+                .Services.BuildServiceProvider();
 
+            return builder
+                .GetRequiredService<IOptions<MvcOptions>>()
+                .Value
+                .InputFormatters
+                .OfType<NewtonsoftJsonPatchInputFormatter>()
+                .First();
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

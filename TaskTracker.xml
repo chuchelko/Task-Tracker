@@ -6,33 +6,78 @@
     <members>
         <member name="M:TaskTracker.Controllers.ProjectsController.Get">
             <summary>
-            Returns all stored projects with it's tasks.
+            Returns all stored Projects with it's tasks.
             </summary>
-        </member>
-        <member name="M:TaskTracker.Controllers.ProjectsController.Post(TaskTracker.Models.Project)">
-            <summary>
-            Adds new project with related tasks.
-            </summary>
-        </member>
-        <member name="M:TaskTracker.Controllers.ProjectsController.Put(TaskTracker.Models.Project)">
-            <summary>
-            Changes all Project's value to recieved or default values.
-            </summary>
-            <remarks>
-            Returns 404 status code response when there is no Project with recieved ID in Database.<br/>
-            When there is no Task related to the recieved Project, returns 404 status code response.
-            </remarks>
         </member>
         <member name="M:TaskTracker.Controllers.ProjectsController.Get(System.Int32)">
             <summary>
             Returns Project with recieved ID.
             </summary>
-            <param name="id">ID of the Project.</param>
+            <param name="id">ID of Project.</param>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectsController.Post(TaskTracker.Models.DTOs.ProjectDTOWithoutID)">
+            <summary>
+            Adds new Project with related Tasks.
+            </summary>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectsController.Put(TaskTracker.Models.DTOs.ProjectDTOWithID)">
+            <summary>
+            Changes all Project's values to recieved or default values.
+            </summary>
+            <remarks>
+            Returns 404 status code response when there is no Project with recieved ID in the Store.<br/>
+            When there is no Task related to the recieved Project, returns 404 status code response.
+            </remarks>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectsController.JsonPatchProject(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{TaskTracker.Models.Project})">
+            <summary>
+            Updates Project's properties by Json Patch Document.
+            </summary>
+            <param name="id">Id of Project.</param>
+            <param name="patchDocument">Json Patch Document</param>
         </member>
         <member name="M:TaskTracker.Controllers.ProjectsController.Delete(System.Int32)">
             <summary>
             Deletes Project with related Tasks by recieved ID.
             </summary>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectTasksController.GetTaskById(System.Int32,System.Int32)">
+            <summary>
+            Returns Task by it's and Project's IDs
+            </summary>
+            <param name="project_id">ID of Project</param>
+            <param name="task_id">ID of Task</param>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectTasksController.GetAllTasks(System.Int32)">
+            <summary>
+            Returns Tasks by Project's ID
+            </summary>
+            <param name="project_id">ID of Project</param>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectTasksController.PostTask(System.Int32,TaskTracker.Models.DTOs.ProjectTaskDTOBase)">
+            <summary>
+            Adds new Task for the Project with recieved ID
+            </summary>
+            <param name="project_id">ID of Project</param>
+            <param name="taskDTO">Adding Task</param>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectTasksController.PutTask(System.Int32,System.Int32,TaskTracker.Models.DTOs.ProjectTaskDTOBase)">
+            <summary>
+            Changes Task's values to recieved or default values.
+            </summary>
+            <remarks>
+            Returns 404 status code response when there is no Project with recieved ID in the Store.<br/>
+            When there is no Task with recieved ID related to the recieved Project, returns 404 status code response.
+            </remarks>
+        </member>
+        <member name="M:TaskTracker.Controllers.ProjectTasksController.DeleteTask(System.Int32,System.Int32)">
+            <summary>
+            Deletes Task from the Store with recieved Project's and Task's ID.
+            </summary>
+            <remarks>
+            Returns 400 status code response when there is no Project with recieved ID in the Store.<br/>
+            When there is no Task related to the recieved Project, returns 400 status code response.
+            </remarks>
         </member>
     </members>
 </doc>

@@ -31,7 +31,13 @@ namespace TaskTracker.Services
                 .FirstOrDefaultAsync(p => p.ProjectId.Equals(id));
         }
 
-        
-        
+        public async Task<Project> GeByIdWithTasksAsNoTrackingAsync(int id)
+        {
+            return await context.Set<Project>()
+                .AsNoTracking()
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.ProjectId.Equals(id));
+        }
+
     }
 }

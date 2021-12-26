@@ -15,6 +15,14 @@ namespace TaskTracker.Services
             
         }
 
+        public async Task<ProjectTask> GeByIdWithProjectAsNoTrackingAsync(int id)
+        {
+            return await context.Set<ProjectTask>()
+                .AsNoTracking()
+                .Include(t => t.Project)
+                .FirstOrDefaultAsync(t => t.ProjectTaskId.Equals(id));
+        }
+
         public async Task<List<ProjectTask>> GetAllAsync()
         {
             return await context.Set<ProjectTask>().ToListAsync();
