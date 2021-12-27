@@ -4,14 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskTracker.Models;
 using TaskTracker.Services.Interfaces;
+using TaskTracker.Services.Sorting.Interfaces;
 
 namespace TaskTracker.Services
 {
     public sealed class RepositoryWrapper : IRepositoryWrapper
     {
+        private ISortingHelper<Project> projectSortingHelper;
         private RepositoryContext context { get; }
-        public RepositoryWrapper(RepositoryContext context)
+        public RepositoryWrapper(RepositoryContext context, ISortingHelper<Project> _projectSortingHelper)
         {
+            projectSortingHelper = _projectSortingHelper;
             this.context = context;
         }
         public IProjectsRepository projects;
@@ -22,7 +25,7 @@ namespace TaskTracker.Services
             get
             {
                 if (projects == null)
-                    projects = new ProjectsRepository(context);
+                    projects = new ProjectsRepository(context, projectSortingHelper);
                 return projects;
             }
         }

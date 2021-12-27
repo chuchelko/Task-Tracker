@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Task_Tracker_Proj.Services.Sorting;
 using TaskTracker.Models;
 using TaskTracker.Models.DTOs;
 using TaskTracker.Services.Interfaces;
@@ -29,9 +30,9 @@ namespace TaskTracker.Controllers
         [ProducesResponseType(typeof(List<ProjectDTOWithID>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public async Task<ActionResult<List<ProjectDTOWithID>>> Get()
+        public async Task<ActionResult<List<ProjectDTOWithID>>> Get([FromQuery] ProjectParameters parameters)
         {
-            var projects = await repository.Projects.GetAllWithTasksAsync();
+            var projects = await repository.Projects.GetAllWithTasksAsync(parameters);
             if (projects == null)
                 return new NotFoundResult();
             var projectDTOs = new List<ProjectDTOWithID>();

@@ -13,6 +13,9 @@ using TaskTracker.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using TaskTracker.Services.Sorting.Interfaces;
+using TaskTracker.Services.Sorting.Implementations;
+using TaskTracker.Models;
 
 namespace TaskTracker
 {
@@ -29,7 +32,8 @@ namespace TaskTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<RepositoryContext>().AddScoped<IRepositoryWrapper, RepositoryWrapper>();
-            //NewtonsoftJson:
+            services.AddScoped<ISortingHelper<Project>, SortingHelper<Project>>();
+            services.AddScoped<ISortingHelper<ProjectTask>, SortingHelper<ProjectTask>>();
             services.AddControllers(options =>
             {
                 options.InputFormatters.Insert(0, GetJsonPatchFormatter());

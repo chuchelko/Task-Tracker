@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskTracker.Models;
 using TaskTracker.Services.Interfaces;
+using TaskTracker.Services.Sorting.Interfaces;
 
 namespace TaskTracker.Services
 {
@@ -12,7 +13,6 @@ namespace TaskTracker.Services
     {
         public TasksRepository(RepositoryContext context) : base(context)
         {
-            
         }
 
         public async Task<ProjectTask> GeByIdWithProjectAsNoTrackingAsync(int id)
